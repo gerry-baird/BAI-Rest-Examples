@@ -1,0 +1,162 @@
+
+#Find all process summaries
+GET /process-summ*/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+#Just the process summary for all instances of a specific process app
+GET /process-su*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"type" : "Process"}},
+        { "match": {"name" : "Cash Allocation"}}
+      ]
+    }
+  }
+}
+
+# All process and task records for a particular process app
+# the size parameter controls how many records
+GET /process-su*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"processApplicationName" : "Cash Allocation"}}
+      ]
+    }
+  },
+  "size": 20
+}
+
+
+
+#Just the process summary for a specific instance
+GET /process-su*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"type" : "Process"}},
+        { "match": {"name" : "Cash Allocation"}},
+        { "match": {"shortProcessInstanceId" : "266"}}
+      ]
+    }
+  }
+}
+
+#All Process and Tasks for a specific process
+GET /process-su*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"processApplicationName" : "Cash Allocation"}},
+        { "match": {"shortProcessInstanceId" : "1021"}}
+      ]
+    }
+  }
+}
+
+# Delete process and its tasks
+POST /process-su*/_delete_by_query
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"processApplicationName" : "Cash Allocation"}},
+        { "match": {"shortProcessInstanceId" : "266"}}
+      ]
+    }
+  }
+}
+
+
+
+
+# A basic get on a document
+# combine the <index>/<type>/<doc id>
+GET /process-summaries-active-idx-ibm-bai-2020.01.10-000001/process-summary/7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.966
+
+
+
+#Using the data from a get
+PUT /process-summaries-active-idx-ibm-bai-2020.01.10-000001/process-summary/101
+{
+    "version" : "1.0.4",
+    "type" : "process",
+    "timestamp" : "2020-04-17T08:46:30.976-05:00",
+    "bpmCellName" : "BAWCloudServer1903",
+    "bpmSystemId" : "39d25db3-d087-4941-8ac3-14c038b5b180",
+    "processApplicationVersionId" : "2064.42fa571d-8b9c-4518-b886-3cfa8251bb4d",
+    "processApplicationName" : "Cash Allocation",
+    "processApplicationId" : "2849f0bc-ee35-4983-921f-d7aaf35e1476",
+    "id" : "7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1015",
+    "trace-id" : "faf8b598-6c7b-4c42-aa85-5d5112dbe17b",
+    "span-id" : "28dc7ea49d53081d",
+    "processInstanceId" : "7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1015",
+    "shortProcessInstanceId" : "1015",
+    "processId" : "7e641241-a3e7-4feb-b121-a55ff5ce6ab3",
+    "processVersionId" : "2064.42fa571d-8b9c-4518-b886-3cfa8251bb4d",
+    "name" : "Cash Allocation",
+    "state" : "Completed",
+    "completedTime" : "2020-04-17T08:46:30.976-05:00",
+    "startTime" : "2020-04-17T08:41:36.836-05:00",
+    "duration" : 294140,
+    "data" : {
+      "TG_Cash_Allocation" : {
+        "@ids" : {
+          "trackingGroupId" : "02aebeba-497a-4360-97ba-ecd720932ddf",
+          "trackingGroupVersionId" : "2064.42fa571d-8b9c-4518-b886-3cfa8251bb4dT"
+        },
+        "payeeName.string" : "Volvo",
+        "payeeRef.string" : "DDD123",
+        "paymentOriginCountry.string" : "AU",
+        "PaymentDestinationCountry.string" : "GB",
+        "payementCurrency.string" : "GBP",
+        "paymentAmount.integer" : 1500,
+        "ourRef.string" : "",
+        "status.string" : "Paid",
+        "exceptionType.string" : "",
+        "escalationTeam.string" : "",
+        "interCompany.string" : "false",
+        "customerEscalationCount.integer" : 0,
+        "slaBreach.string" : "false"
+      }
+    },
+    "lastBusinessDataUpdateTime" : "2020-04-17T08:46:30.965-05:00",
+    "lastBusinessDataUpdateActivity" : "Update Systems",
+    "lastBusinessDataUpdateEvent" : "EVENT_THROWN",
+    "lastBusinessDataUpdatePerformer" : "Daniel Crow"
+  }
+
+#Update a nested field
+POST /process-summaries-completed-idx-ibm-bai-2020.01.10-000001/process-summary/7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1021.5/_update
+{
+  "doc":{
+    "data":{
+      "TG_Cash_Allocation" : {
+        "ourRef.string": "LL12345"  
+      }
+    }
+  }
+}
+
+GET /process-summaries-completed-idx-ibm-bai-2020.01.10-000001/process-summary/7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1021.5/_source
+
+POST /process-summaries-completed-idx-ibm-bai-2020.01.10-000001/process-summary/10/_update
+{
+  "doc":{
+    "data":{
+      "TG_Cash_Allocation" : {
+        "slaBreach.string": "true"  
+      }
+    }
+  }
+}
