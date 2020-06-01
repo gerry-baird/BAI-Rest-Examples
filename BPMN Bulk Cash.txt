@@ -1,0 +1,49 @@
+#Bulk uploads require some prep
+#1 Install jq to convert multi-line JSON int single line : https://stedolan.github.io/jq/download/
+#2 run a command to convert the document json to single line
+jq -c . cash.json
+
+
+POST /process-summaries-active-idx-ibm-bai-2020.01.10-000001/process-summary/_bulk
+{"index":{"_id":10}}
+{"version":"1.0.4","type":"process","timestamp":"2020-03-17T08:46:30.976-05:00","bpmCellName":"BAWCloudServer1903","bpmSystemId":"39d25db3-d087-4941-8ac3-14c038b5b180","processApplicationVersionId":"2064.42fa571d-8b9c-4518-b886-3cfa8251bb4d","processApplicationName":"Cash Allocation","processApplicationId":"2849f0bc-ee35-4983-921f-d7aaf35e1476","id":"7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1015","trace-id":"faf8b598-6c7b-4c42-aa85-5d5112dbe17b","span-id":"28dc7ea49d53081d","processInstanceId":"7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1015","shortProcessInstanceId":"D10","processId":"7e641241-a3e7-4feb-b121-a55ff5ce6ab3","processVersionId":"2064.42fa571d-8b9c-4518-b886-3cfa8251bb4d","name":"Cash Allocation","state":"Active","completedTime":"2020-03-17T08:46:30.976-05:00","startTime":"2020-03-17T08:41:36.836-05:00","duration":294140,"data":{"TG_Cash_Allocation":{"@ids":{"trackingGroupId":"02aebeba-497a-4360-97ba-ecd720932ddf","trackingGroupVersionId":"2064.42fa571d-8b9c-4518-b886-3cfa8251bb4dT"},"payeeName.string":"ACME","payeeRef.string":"DDD123","paymentOriginCountry.string":"NZ","PaymentDestinationCountry.string":"GB","payementCurrency.string":"GBP","paymentAmount.integer":10000,"ourRef.string":"","status.string":"","exceptionType.string":"","escalationTeam.string":"","interCompany.string":"false","customerEscalationCount.integer":0,"slaBreach.string":"false"}},"lastBusinessDataUpdateTime":"2020-03-17T08:46:30.965-05:00","lastBusinessDataUpdateActivity":"Receive Payment","lastBusinessDataUpdateEvent":"EVENT_THROWN","lastBusinessDataUpdatePerformer":"Daniel Crow"}
+{"index":{"_id":11}}
+{"version":"1.0.4","type":"process","timestamp":"2020-03-17T08:46:30.976-05:00","bpmCellName":"BAWCloudServer1903","bpmSystemId":"39d25db3-d087-4941-8ac3-14c038b5b180","processApplicationVersionId":"2064.42fa571d-8b9c-4518-b886-3cfa8251bb4d","processApplicationName":"Cash Allocation","processApplicationId":"2849f0bc-ee35-4983-921f-d7aaf35e1476","id":"7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1015","trace-id":"faf8b598-6c7b-4c42-aa85-5d5112dbe17b","span-id":"28dc7ea49d53081d","processInstanceId":"7e641241-a3e7-4feb-b121-a55ff5ce6ab3.39d25db3-d087-4941-8ac3-14c038b5b180.1015","shortProcessInstanceId":"D11","processId":"7e641241-a3e7-4feb-b121-a55ff5ce6ab3","processVersionId":"2064.42fa571d-8b9c-4518-b886-3cfa8251bb4d","name":"Cash Allocation","state":"Active","completedTime":"2020-03-17T08:46:30.976-05:00","startTime":"2020-03-17T08:41:36.836-05:00","duration":294140,"data":{"TG_Cash_Allocation":{"@ids":{"trackingGroupId":"02aebeba-497a-4360-97ba-ecd720932ddf","trackingGroupVersionId":"2064.42fa571d-8b9c-4518-b886-3cfa8251bb4dT"},"payeeName.string":"ACME","payeeRef.string":"DDD123","paymentOriginCountry.string":"NZ","PaymentDestinationCountry.string":"GB","payementCurrency.string":"GBP","paymentAmount.integer":10000,"ourRef.string":"","status.string":"","exceptionType.string":"","escalationTeam.string":"","interCompany.string":"false","customerEscalationCount.integer":0,"slaBreach.string":"false"}},"lastBusinessDataUpdateTime":"2020-03-17T08:46:30.965-05:00","lastBusinessDataUpdateActivity":"Receive Payment","lastBusinessDataUpdateEvent":"EVENT_THROWN","lastBusinessDataUpdatePerformer":"Daniel Crow"}
+
+#Remove
+POST /process-su*/_delete_by_query
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"processApplicationName" : "Cash Allocation"}},
+        { "match": {"shortProcessInstanceId" : "D10"}}
+      ]
+    }
+  }
+}
+
+#Fetch
+GET /process-su*/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": {"processApplicationName" : "Cash Allocation"}},
+        { "match": {"shortProcessInstanceId" : "D10"}}
+      ]
+    }
+  }
+}
+
+#Update the SLA
+POST /process-summaries-active-idx-ibm-bai-2020.01.10-000001/process-summary/10/_update
+{
+  "doc":{
+    "data":{
+      "TG_Cash_Allocation" : {
+        "slaBreach.string": "true"  
+      }
+    }
+  }
+}
